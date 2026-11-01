@@ -3,39 +3,45 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Savane Énergie</title>
+    <title>Savane Énergie - ERP</title>
     <style>
-        body { font-family: Arial, sans-serif; background: #f4f6f8; margin: 0; padding: 20px; }
-        .card { background: white; padding: 20px; border-radius: 8px; max-width: 400px; margin: 40px auto; box-shadow: 0 2px 10px rgba(0,0,0,0.1); text-align: center; }
-        h1 { color: #1b5e20; }
-        .form-group { margin-bottom: 15px; text-align: left; }
-        label { display: block; font-weight: bold; margin-bottom: 5px; font-size: 14px; }
-        input, select { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
-        button { background-color: #1b5e20; color: white; border: none; padding: 12px; width: 100%; font-weight: bold; border-radius: 4px; cursor: pointer; font-size: 16px; }
+        body { font-family: Arial, sans-serif; background: #f4f6f8; margin: 0; padding: 15px; }
+        .card { background: white; padding: 20px; border-radius: 8px; max-width: 900px; margin: 15px auto; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        h1 { color: #1b5e20; text-align: center; font-size: 22px; margin-bottom: 5px; }
+        h2 { color: #1b5e20; font-size: 18px; border-bottom: 2px solid #fbc02d; padding-bottom: 5px; margin-bottom: 15px; }
+        .form-group { margin-bottom: 12px; }
+        label { display: block; font-weight: bold; margin-bottom: 4px; font-size: 13px; }
+        input, select, textarea { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-size: 14px; }
+        button { background-color: #1b5e20; color: white; border: none; padding: 10px; width: 100%; font-weight: bold; border-radius: 4px; cursor: pointer; font-size: 15px; }
         button:hover { background-color: #2e7d32; }
         .hidden { display: none !important; }
-        header { background: #1b5e20; color: white; padding: 15px; text-align: center; border-radius: 4px; margin-bottom: 20px; }
-        .nav { display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 20px; }
-        .nav button { flex: 1; padding: 10px; background: #ddd; color: #333; font-size: 13px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; }
+        header { background: #1b5e20; color: white; padding: 15px; text-align: center; border-radius: 6px; margin-bottom: 15px; }
+        .nav { display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 15px; }
+        .nav button { flex: 1; padding: 8px; background: #ddd; color: #333; font-size: 12px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; }
         .nav button.active { background: #fbc02d; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 12px; }
+        table, th, td { border: 1px solid #ddd; }
+        th, td { padding: 6px; text-align: left; }
+        th { background: #f1f8e9; color: #1b5e20; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; }
     </style>
 </head>
 <body>
 
     <!-- Écran de Connexion -->
-    <div id="loginScreen" class="card">
+    <div id="loginScreen" class="card" style="max-width: 400px; text-align: center;">
         <h1>Savane Énergie</h1>
-        <p>Connexion à l'application</p>
+        <p style="color: #666; font-size: 13px; margin-bottom: 15px;">Connexion à l'application</p>
         <form id="loginForm">
-            <div class="form-group">
+            <div class="form-group" style="text-align: left;">
                 <label>Nom & Prénom</label>
                 <input type="text" id="username" required placeholder="Ex: Ibrahim Sore">
             </div>
-            <div class="form-group">
+            <div class="form-group" style="text-align: left;">
                 <label>Mot de passe</label>
                 <input type="password" id="password" required placeholder="••••••••">
             </div>
-            <div class="form-group">
+            <div class="form-group" style="text-align: left;">
                 <label>Rôle</label>
                 <select id="role">
                     <option value="commercial">Commercial</option>
@@ -49,11 +55,11 @@
     </div>
 
     <!-- Écran Principal -->
-    <div id="appScreen" class="hidden" style="max-width: 900px; margin: auto;">
+    <div id="appScreen" class="hidden">
         <header>
-            <h2 id="headerTitle" style="margin:0;">Savane Énergie</h2>
-            <p id="headerUser" style="margin:5px 0 0; font-size: 14px; color: #fbc02d; font-weight: bold;"></p>
-            <button onclick="logout()" style="background:none; border:underline; color:white; margin-top:10px; width:auto; padding:0; cursor:pointer; font-size:12px;">Se déconnecter</button>
+            <h2 id="headerTitle" style="margin:0; color:white; border:none;">Savane Énergie</h2>
+            <p id="headerUser" style="margin:5px 0 0; font-size: 13px; color: #fbc02d; font-weight: bold;"></p>
+            <button onclick="logout()" style="background:none; border:underline; color:white; margin-top:8px; width:auto; padding:0; cursor:pointer; font-size:11px;">Se déconnecter</button>
         </header>
 
         <div class="nav" id="navTabs">
@@ -64,87 +70,20 @@
             <button id="tabBtnDG" onclick="switchTab('dg')">DG / Global</button>
         </div>
 
-        <div id="contentCommercial" class="card" style="max-width:100%; text-align:left;">
-            <h3>Espace Commercial</h3>
-            <p>Gestion des prospects et des clients avec calcul automatique des 12 mois d'échelonnement (Kits 350, 450, 710).</p>
-        </div>
-
-        <div id="contentTechnique" class="card hidden" style="max-width:100%; text-align:left;">
-            <h3>Espace Technique & SAV</h3>
-            <p>Suivi des installations solaires et des interventions du service après-vente.</p>
-        </div>
-
-        <div id="contentStock" class="card hidden" style="max-width:100%; text-align:left;">
-            <h3>Gestion des Stocks</h3>
-            <p>Entrées et sorties des équipements et composants solaires.</p>
-        </div>
-
-        <div id="contentFinance" class="card hidden" style="max-width:100%; text-align:left;">
-            <h3>Espace Finance & Impayés</h3>
-            <p>Suivi des recettes, des dépenses et des soldes restants des clients.</p>
-        </div>
-
-        <div id="contentDG" class="card hidden" style="max-width:100%; text-align:left;">
-            <h3>Supervision Direction Générale (DG)</h3>
-            <p>Tableau de bord global des performances de l'entreprise.</p>
-        </div>
-    </div>
-
-    <script>
-        document.getElementById('loginForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const name = document.getElementById('username').value;
-            const role = document.getElementById('role').value;
-            
-            localStorage.setItem('user_name', name);
-            localStorage.setItem('user_role', role);
-            
-            loadApp(name, role);
-        });
-
-        function loadApp(name, role) {
-            document.getElementById('loginScreen').classList.add('hidden');
-            document.getElementById('appScreen').classList.remove('hidden');
-            document.getElementById('headerUser').innerText = `${name} (${role.toUpperCase()})`;
-
-            document.getElementById('tabBtnCommercial').style.display = (role === 'commercial' || role === 'dg') ? 'block' : 'none';
-            document.getElementById('tabBtnTechnique').style.display = (role === 'technique' || role === 'dg') ? 'block' : 'none';
-            document.getElementById('tabBtnStock').style.display = (role === 'technique' || role === 'dg') ? 'block' : 'none';
-            document.getElementById('tabBtnFinance').style.display = (role === 'finance' || role === 'dg') ? 'block' : 'none';
-            document.getElementById('tabBtnDG').style.display = (role === 'dg') ? 'block' : 'none';
-
-            if (role === 'commercial') switchTab('commercial');
-            else if (role === 'technique') switchTab('technique');
-            else if (role === 'finance') switchTab('finance');
-            else if (role === 'dg') switchTab('dg');
-        }
-
-        function switchTab(tab) {
-            ['commercial', 'technique', 'stock', 'finance', 'dg'].forEach(t => {
-                const el = document.getElementById('content' + t.charAt(0).toUpperCase() + t.slice(1));
-                if(el) el.classList.add('hidden');
-                const btn = document.getElementById('tabBtn' + t.charAt(0).toUpperCase() + t.slice(1));
-                if(btn) btn.classList.remove('active');
-            });
-
-            const activeEl = document.getElementById('content' + tab.charAt(0).toUpperCase() + tab.slice(1));
-            if(activeEl) activeEl.classList.remove('hidden');
-            const activeBtn = document.getElementById('tabBtn' + tab.charAt(0).toUpperCase() + tab.slice(1));
-            if(activeBtn) activeBtn.classList.add('active');
-        }
-
-        function logout() {
-            localStorage.clear();
-            location.reload();
-        }
-
-        window.onload = function() {
-            const savedName = localStorage.getItem('user_name');
-            const savedRole = localStorage.getItem('user_role');
-            if (savedName && savedRole) {
-                loadApp(savedName, savedRole);
-            }
-        }
-    </script>
-</body>
-</html>
+        <!-- Espace Commercial -->
+        <div id="contentCommercial" class="card">
+            <h2>Enregistrement Client & Échelonnage (12 mois)</h2>
+            <form id="clientForm">
+                <div class="grid">
+                    <div class="form-group"><label>Nom Complet Client</label><input type="text" id="cName" required placeholder="Ex: Jean Ouédraogo"></div>
+                    <div class="form-group"><label>N° Contrat</label><input type="text" id="cContract" required placeholder="Ex: SE-2026-001"></div>
+                    <div class="form-group"><label>Téléphone Principal</label><input type="tel" id="cPhone1" required placeholder="+226 XX XX XX XX"></div>
+                    <div class="form-group"><label>Téléphone WhatsApp</label><input type="tel" id="cPhone2"></div>
+                    <div class="form-group"><label>Compte Mobile Money</label><input type="text" id="cMomo"></div>
+                    <div class="form-group"><label>Adresse / GPS</label><input type="text" id="cAddress"></div>
+                    <div class="form-group">
+                        <label>Choix du Kit</label>
+                        <select id="cKit" required onchange="calcFinancials()">
+                            <option value="">Sélectionner un kit</option>
+                            <option value="Kit 350" data-price="150000">Kit 350 (150 000 FCFA)</option>
+                            <option value="Kit 450" data-price="220000">Kit 450 (220 000 FCFA)</
