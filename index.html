@@ -114,6 +114,23 @@
             font-size: 0.9rem;
             color: #666;
         }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+        th, td {
+            padding: 0.75rem;
+            text-align: left;
+            font-size: 0.9rem;
+        }
+        th {
+            background-color: #f1f8e9;
+            color: var(--primary);
+        }
     </style>
 </head>
 <body>
@@ -129,7 +146,7 @@
             <h2>Indicateurs Clés</h2>
             <div class="stats">
                 <div class="stat-box">
-                    <h3>0</h3>
+                    <h3 id="clientCount">0</h3>
                     <p>Clients Actifs</p>
                 </div>
                 <div class="stat-box">
@@ -200,15 +217,84 @@
                 <button type="submit" style="margin-top: 1rem;">Enregistrer le Client & Activer le Contrat</button>
             </form>
         </div>
+
+        <!-- Liste des clients enregistrés -->
+        <div class="card">
+            <h2>Liste des Clients Enregistrés</h2>
+            <div style="overflow-x: auto;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Contrat</th>
+                            <th>Nom</th>
+                            <th>Téléphone</th>
+                            <th>Kit Solaire</th>
+                            <th>Paiement</th>
+                        </tr>
+                    </thead>
+                    <tbody id="clientTableBody">
+                        <!-- Les clients s'ajouteront ici dynamiquement -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
 
     <script>
+        // Charger les clients enregistrés au démarrage
+        document.addEventListener('DOMContentLoaded', updateUI);
+
         document.getElementById('clientForm').addEventListener('submit', function(e) {
             e.preventDefault();
-            alert('Client enregistré avec succès pour Savane Énergie !');
+
+            // Récupérer les valeurs du formulaire
+            const client = {
+                name: document.getElementById('clientName').value,
+                contract: document.getElementById('contractNum').value,
+                phone: document.getElementById('phone1').value,
+                kit: document.getElementById('kitType').value,
+                plan: document.getElementById('paymentPlan').value
+            };
+
+            // Récupérer la liste existante depuis le localStorage
+            let clients = JSON.parse(localStorage.getItem('savane_clients')) || [];
+            clients.push(client);
+
+            // Sauvegarder dans le localStorage
+            localStorage.setItem('savane_clients', JSON.stringify(clients));
+
+            alert('Client enregistré et sauvegardé avec succès pour Savane Énergie !');
             this.reset();
+            updateUI();
         });
+
+        function updateUI() {
+            let clients = JSON.parse(localStorage.getItem('savane_clients')) || [];
+            
+            // Mettre à jour le compteur
+            document.getElementById('clientCount').innerText = clients.length;
+
+            // Mettre à jour le tableau
+            const tableBody = document.getElementById('clientTableBody');
+            tableBody.innerHTML = '';
+
+            if (clients.length === 0) {
+                tableBody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: #776;">Aucun client enregistré pour le moment.</td></tr>`;
+                return;
+            }
+
+            clients.forEach(c => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${c.contract}</td>
+                    <td>${c.name}</td>
+                    <td>${c.phone}</td>
+                    <td>${c.kit}</td>
+                    <td>${c.plan}</td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
     </script>
 </body>
 </html>
-
