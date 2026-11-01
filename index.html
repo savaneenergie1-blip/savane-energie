@@ -350,7 +350,8 @@
         function switchTab(tabId) {
             document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
             document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
-            document.getElementById(tabId).classList.remove('hidden');
+            const targetTab = document.getElementById(tabId);
+            if(targetTab) targetTab.classList.remove('hidden');
 
             const activeBtnMap = {
                 'tabCommercial': 'btnTabCommercial',
@@ -359,13 +360,15 @@
                 'tabFinance': 'btnTabFinance',
                 'tabDG': 'btnTabDG'
             };
-            if (document.getElementById(activeBtnMap[tabId])) {
-                document.getElementById(activeBtnMap[tabId]).classList.add('active');
+            const btnId = activeBtnMap[tabId];
+            if (btnId && document.getElementById(btnId)) {
+                document.getElementById(btnId).classList.add('active');
             }
         }
 
         function calcFinancials() {
             const select = document.getElementById('cKit');
+            if(!select) return;
             const price = parseFloat(select.options[select.selectedIndex]?.getAttribute('data-price')) || 0;
             const deposit = parseFloat(document.getElementById('cDeposit').value) || 0;
             const rest = Math.max(0, price - deposit);
@@ -375,97 +378,112 @@
             document.getElementById('dispMonthly').innerText = Math.round(rest / 12).toLocaleString();
         }
 
-        document.getElementById('prospectForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            let list = JSON.parse(localStorage.getItem('savane_prospects')) || [];
-            list.push({
-                date: document.getElementById('pDate').value,
-                agent: document.getElementById('pAgent').value,
-                name: document.getElementById('pName').value,
-                phone: document.getElementById('pPhone').value,
-                kit: document.getElementById('pKit').value,
-                status: document.getElementById('pStatus').value
-            });
-            localStorage.setItem('savane_prospects', JSON.stringify(list));
-            alert('Prospect enregistré !');
-            this.reset();
-            updateAllData();
-        });
-
-        document.getElementById('clientForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const select = document.getElementById('cKit');
-            const price = parseFloat(select.options[select.selectedIndex].getAttribute('data-price')) || 0;
-            const deposit = parseFloat(document.getElementById('cDeposit').value) || 0;
-
-            let list = JSON.parse(localStorage.getItem('savane_clients')) || [];
-            list.push({
-                date: document.getElementById('cDate').value,
-                vendor: document.getElementById('cVendor').value,
-                name: document.getElementById('cName').value,
-                contract: document.getElementById('cContract').value,
-                phone1: document.getElementById('cPhone1').value,
-                kit: select.value,
-                price: price,
-                deposit: deposit,
-                remaining: price - deposit,
-                payments: [deposit]
-            });
-            localStorage.setItem('savane_clients', JSON.stringify(list));
-            alert('Vente et client enregistrés avec succès !');
-            this.reset();
-            calcFinancials();
-            updateAllData();
-        });
-
-        document.getElementById('stockForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            let stocks = JSON.parse(localStorage.getItem('savane_stocks')) || {};
-            const item = document.getElementById('stItem').value.trim();
-            const qty = parseInt(document.getElementById('stQty').value);
-            const type = document.getElementById('stType').value;
-
-            stocks[item] = (stocks[item] || 0) + (type === 'ENTREE' ? qty : -qty);
-            if (stocks[item] < 0) stocks[item] = 0;
-
-            localStorage.setItem('savane_stocks', JSON.stringify(stocks));
-            alert('Stock mis à jour !');
-            this.reset();
-            updateAllData();
-        });
-
-        document.getElementById('expForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            let list = JSON.parse(localStorage.getItem('savane_expenses')) || [];
-            list.push({
-                date: document.getElementById('expDate').value,
-                motif: document.getElementById('expMotif').value,
-                amount: parseFloat(document.getElementById('expAmount').value)
-            });
-            localStorage.setItem('savane_expenses', JSON.stringify(list));
-            alert('Dépense enregistrée !');
-            this.reset();
-            updateAllData();
-        });
-
-        document.getElementById('payForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const contract = document.getElementById('payContract').value;
-            const amount = parseFloat(document.getElementById('payAmount').value);
-
-            let clients = JSON.parse(localStorage.getItem('savane_clients')) || [];
-            let c = clients.find(x => x.contract === contract);
-            if (c) {
-                c.remaining = Math.max(0, c.remaining - amount);
-                c.payments.push(amount);
-                localStorage.setItem('savane_clients', JSON.stringify(clients));
-                alert('Paiement client enregistré !');
+        const pForm = document.getElementById('prospectForm');
+        if(pForm) {
+            pForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                let list = JSON.parse(localStorage.getItem('savane_prospects')) || [];
+                list.push({
+                    date: document.getElementById('pDate').value,
+                    agent: document.getElementById('pAgent').value,
+                    name: document.getElementById('pName').value,
+                    phone: document.getElementById('pPhone').value,
+                    kit: document.getElementById('pKit').value,
+                    status: document.getElementById('pStatus').value
+                });
+                localStorage.setItem('savane_prospects', JSON.stringify(list));
+                alert('Prospect enregistré !');
                 this.reset();
                 updateAllData();
-            } else {
-                alert('Contrat introuvable !');
-            }
-        });
+            });
+        }
+
+        const cForm = document.getElementById('clientForm');
+        if(cForm) {
+            cForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                const select = document.getElementById('cKit');
+                const price = parseFloat(select.options[select.selectedIndex].getAttribute('data-price')) || 0;
+                const deposit = parseFloat(document.getElementById('cDeposit').value) || 0;
+
+                let list = JSON.parse(localStorage.getItem('savane_clients')) || [];
+                list.push({
+                    date: document.getElementById('cDate').value,
+                    vendor: document.getElementById('cVendor').value,
+                    name: document.getElementById('cName').value,
+                    contract: document.getElementById('cContract').value,
+                    phone1: document.getElementById('cPhone1').value,
+                    kit: select.value,
+                    price: price,
+                    deposit: deposit,
+                    remaining: price - deposit,
+                    payments: [deposit]
+                });
+                localStorage.setItem('savane_clients', JSON.stringify(list));
+                alert('Vente et client enregistrés avec succès !');
+                this.reset();
+                calcFinancials();
+                updateAllData();
+            });
+        }
+
+        const sForm = document.getElementById('stockForm');
+        if(sForm) {
+            sForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                let stocks = JSON.parse(localStorage.getItem('savane_stocks')) || {};
+                const item = document.getElementById('stItem').value.trim();
+                const qty = parseInt(document.getElementById('stQty').value);
+                const type = document.getElementById('stType').value;
+
+                stocks[item] = (stocks[item] || 0) + (type === 'ENTREE' ? qty : -qty);
+                if (stocks[item] < 0) stocks[item] = 0;
+
+                localStorage.setItem('savane_stocks', JSON.stringify(stocks));
+                alert('Stock mis à jour !');
+                this.reset();
+                updateAllData();
+            });
+        }
+
+        const expForm = document.getElementById('expForm');
+        if(expForm) {
+            expForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                let list = JSON.parse(localStorage.getItem('savane_expenses')) || [];
+                list.push({
+                    date: document.getElementById('expDate').value,
+                    motif: document.getElementById('expMotif').value,
+                    amount: parseFloat(document.getElementById('expAmount').value)
+                });
+                localStorage.setItem('savane_expenses', JSON.stringify(list));
+                alert('Dépense enregistrée !');
+                this.reset();
+                updateAllData();
+            });
+        }
+
+        const payForm = document.getElementById('payForm');
+        if(payForm) {
+            payForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                const contract = document.getElementById('payContract').value;
+                const amount = parseFloat(document.getElementById('payAmount').value);
+
+                let clients = JSON.parse(localStorage.getItem('savane_clients')) || [];
+                let c = clients.find(x => x.contract === contract);
+                if (c) {
+                    c.remaining = Math.max(0, c.remaining - amount);
+                    c.payments.push(amount);
+                    localStorage.setItem('savane_clients', JSON.stringify(clients));
+                    alert('Paiement client enregistré !');
+                    this.reset();
+                    updateAllData();
+                } else {
+                    alert('Contrat introuvable !');
+                }
+            });
+        }
 
         function updateAllData() {
             let prospects = JSON.parse(localStorage.getItem('savane_prospects')) || [];
@@ -519,7 +537,9 @@
         }
 
         document.addEventListener('DOMContentLoaded', () => {
-            initApp();
+            if(localStorage.getItem('savane_session')) {
+                initApp();
+            }
         });
     </script>
 </body>
