@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Savane Énergie - Gestion et Suivi</title>
+    <title>Savane Énergie - Gestion</title>
     <style>
         :root {
             --primary: #1b5e20;
@@ -131,123 +131,225 @@
             background-color: #f1f8e9;
             color: var(--primary);
         }
+        /* Styles pour la page de connexion */
+        #loginScreen {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: var(--bg-color);
+        }
+        .login-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+        .login-card h1 {
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+        .login-card p {
+            color: #666;
+            margin-bottom: 1.5rem;
+        }
+        #appScreen {
+            display: none; /* Masqué par défaut */
+        }
+        .role-badge {
+            display: inline-block;
+            background-color: var(--secondary);
+            color: #333;
+            padding: 0.25rem 0.75rem;
+            border-radius: 50px;
+            font-size: 0.8rem;
+            margin-bottom: 1rem;
+            text-transform: capitalize;
+        }
     </style>
 </head>
 <body>
 
-    <header>
-        <h1>Savane Énergie</h1>
-        <p>Application de Gestion - Ventes, Stocks et Échelonnements</p>
-    </header>
+    <!-- Écran de Connexion -->
+    <div id="loginScreen">
+        <div class="login-card">
+            <h1>Savane Énergie</h1>
+            <p>Connectez-vous pour accéder à votre espace</p>
+            <div class="form-group">
+                <label for="roleSelect">Sélectionnez votre rôle</label>
+                <select id="roleSelect">
+                    <option value="commercial">Équipe Commerciale</option>
+                    <option value="technique">Équipe Technique</option>
+                    <option value="finance">Équipe Financière</option>
+                </select>
+            </div>
+            <button onclick="login()">Se Connecter</button>
+        </div>
+    </div>
 
-    <div class="container">
-        <!-- Tableau de bord / Statistiques rapides -->
-        <div class="card">
-            <h2>Indicateurs Clés</h2>
-            <div class="stats">
-                <div class="stat-box">
-                    <h3 id="clientCount">0</h3>
-                    <p>Clients Actifs</p>
-                </div>
-                <div class="stat-box">
-                    <h3>0 FCFA</h3>
-                    <p>Recettes du Mois</p>
-                </div>
-                <div class="stat-box">
-                    <h3>Kit 350 / 450 / 710</h3>
-                    <p>Configurations Disponibles</p>
+    <!-- Application Principale -->
+    <div id="appScreen">
+        <header>
+            <h1>Savane Énergie</h1>
+            <p>Application de Gestion - Ventes, Stocks et Échelonnements</p>
+            <div id="userRoleBadge" class="role-badge"></div>
+            <button onclick="logout()" style="background: none; border: underline; color: #fff; cursor: pointer; text-decoration: underline;">Déconnexion</button>
+        </header>
+
+        <div class="container">
+            <!-- Tableau de bord / Statistiques rapides -->
+            <div class="card" id="financeSection">
+                <h2>Indicateurs Clés</h2>
+                <div class="stats">
+                    <div class="stat-box">
+                        <h3 id="clientCount">0</h3>
+                        <p>Clients Actifs</p>
+                    </div>
+                    <div class="stat-box">
+                        <h3>0 FCFA</h3>
+                        <p>Recettes du Mois</p>
+                    </div>
+                    <div class="stat-box">
+                        <h3>Kit 350 / 450 / 710</h3>
+                        <p>Configurations Disponibles</p>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <!-- Formulaire d'Onboarding Client & Vente -->
-        <div class="card">
-            <h2>Enregistrement Client & Échelonnement (12 mois)</h2>
-            <form id="clientForm">
-                <div class="grid">
-                    <div class="form-group">
-                        <label for="clientName">Nom complet du client</label>
-                        <input type="text" id="clientName" required placeholder="Ex: Jean Ouédraogo">
+            <!-- Formulaire d'Onboarding Client & Vente -->
+            <div class="card" id="salesSection">
+                <h2>Enregistrement Client & Échelonnement (12 mois)</h2>
+                <form id="clientForm">
+                    <div class="grid">
+                        <div class="form-group">
+                            <label for="clientName">Nom complet du client</label>
+                            <input type="text" id="clientName" required placeholder="Ex: Jean Ouédraogo">
+                        </div>
+                        <div class="form-group">
+                            <label for="contractNum">Numéro de Contrat</label>
+                            <input type="text" id="contractNum" required placeholder="Ex: SE-2026-001">
+                        </div>
+                        <div class="form-group">
+                            <label for="phone1">Téléphone Principal</label>
+                            <input type="tel" id="phone1" required placeholder="Ex: +226 XX XX XX XX">
+                        </div>
+                        <div class="form-group">
+                            <label for="phone2">Second Téléphone / WhatsApp</label>
+                            <input type="tel" id="phone2" placeholder="Ex: +226 XX XX XX XX">
+                        </div>
+                        <div class="form-group">
+                            <label for="momo">Compte Mobile Money</label>
+                            <input type="text" id="momo" placeholder="Numéro et opérateur">
+                        </div>
+                        <div class="form-group">
+                            <label for="emergency">Contact d'Urgence</label>
+                            <input type="text" id="emergency" placeholder="Nom et téléphone">
+                        </div>
+                        <div class="form-group">
+                            <label for="address">Adresse Physique</label>
+                            <input type="text" id="address" placeholder="Ville, Secteur, Quartier">
+                        </div>
+                        <div class="form-group">
+                            <label for="gps">Coordonnées GPS</label>
+                            <input type="text" id="gps" placeholder="Latitude, Longitude">
+                        </div>
+                        <div class="form-group">
+                            <label for="kitType">Modèle de Kit Solaire</label>
+                            <select id="kitType" required>
+                                <option value="">Sélectionner un kit</option>
+                                <option value="Kit 350">Kit 350 (Standard)</option>
+                                <option value="Kit 450">Kit 450 (Intermédiaire)</option>
+                                <option value="Kit 710">Kit 710 (Grand Modèle)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="paymentPlan">Modalité de Paiement</label>
+                            <select id="paymentPlan" required>
+                                <option value="12 mois">Échelonnement sur 12 mois</option>
+                                <option value="Comptant">Achat au comptant</option>
+                            </select>
+                        </div>
                     </div>
-                    <div class="form-group">
-                        <label for="contractNum">Numéro de Contrat</label>
-                        <input type="text" id="contractNum" required placeholder="Ex: SE-2026-001">
-                    </div>
-                    <div class="form-group">
-                        <label for="phone1">Téléphone Principal</label>
-                        <input type="tel" id="phone1" required placeholder="Ex: +226 XX XX XX XX">
-                    </div>
-                    <div class="form-group">
-                        <label for="phone2">Second Téléphone / WhatsApp</label>
-                        <input type="tel" id="phone2" placeholder="Ex: +226 XX XX XX XX">
-                    </div>
-                    <div class="form-group">
-                        <label for="momo">Compte Mobile Money</label>
-                        <input type="text" id="momo" placeholder="Numéro et opérateur">
-                    </div>
-                    <div class="form-group">
-                        <label for="emergency">Contact d'Urgence</label>
-                        <input type="text" id="emergency" placeholder="Nom et téléphone">
-                    </div>
-                    <div class="form-group">
-                        <label for="address">Adresse Physique</label>
-                        <input type="text" id="address" placeholder="Ville, Secteur, Quartier">
-                    </div>
-                    <div class="form-group">
-                        <label for="gps">Coordonnées GPS</label>
-                        <input type="text" id="gps" placeholder="Latitude, Longitude">
-                    </div>
-                    <div class="form-group">
-                        <label for="kitType">Modèle de Kit Solaire</label>
-                        <select id="kitType" required>
-                            <option value="">Sélectionner un kit</option>
-                            <option value="Kit 350">Kit 350 (Standard)</option>
-                            <option value="Kit 450">Kit 450 (Intermédiaire)</option>
-                            <option value="Kit 710">Kit 710 (Grand Modèle)</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="paymentPlan">Modalité de Paiement</label>
-                        <select id="paymentPlan" required>
-                            <option value="12 mois">Échelonnement sur 12 mois</option>
-                            <option value="Comptant">Achat au comptant</option>
-                        </select>
-                    </div>
+                    <button type="submit" style="margin-top: 1rem;">Enregistrer le Client & Activer le Contrat</button>
+                </form>
+            </div>
+
+            <!-- Liste des clients enregistrés -->
+            <div class="card" id="clientsListSection">
+                <h2>Liste des Clients Enregistrés</h2>
+                <div style="overflow-x: auto;">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Contrat</th>
+                                <th>Nom</th>
+                                <th>Téléphone</th>
+                                <th>Kit Solaire</th>
+                                <th>Paiement</th>
+                            </tr>
+                        </thead>
+                        <tbody id="clientTableBody">
+                            <!-- Les clients s'ajouteront ici dynamiquement -->
+                        </tbody>
+                    </table>
                 </div>
-                <button type="submit" style="margin-top: 1rem;">Enregistrer le Client & Activer le Contrat</button>
-            </form>
-        </div>
-
-        <!-- Liste des clients enregistrés -->
-        <div class="card">
-            <h2>Liste des Clients Enregistrés</h2>
-            <div style="overflow-x: auto;">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Contrat</th>
-                            <th>Nom</th>
-                            <th>Téléphone</th>
-                            <th>Kit Solaire</th>
-                            <th>Paiement</th>
-                        </tr>
-                    </thead>
-                    <tbody id="clientTableBody">
-                        <!-- Les clients s'ajouteront ici dynamiquement -->
-                    </tbody>
-                </table>
             </div>
         </div>
     </div>
 
     <script>
-        // Charger les clients enregistrés au démarrage
-        document.addEventListener('DOMContentLoaded', updateUI);
+        // Gestion de la connexion et des rôles
+        function login() {
+            const role = document.getElementById('roleSelect').value;
+            localStorage.setItem('savane_user_role', role);
+            showApp();
+        }
 
+        function logout() {
+            localStorage.removeItem('savane_user_role');
+            location.reload();
+        }
+
+        function showApp() {
+            const role = localStorage.getItem('savane_user_role');
+            if (role) {
+                document.getElementById('loginScreen').style.display = 'none';
+                document.getElementById('appScreen').style.display = 'block';
+
+                document.getElementById('userRoleBadge').innerText = 'Rôle : ' + role;
+
+                // Application des permissions selon le rôle
+                const salesSection = document.getElementById('salesSection');
+                const financeSection = document.getElementById('financeSection');
+                const clientsListSection = document.getElementById('clientsListSection');
+
+                if (role === 'commercial') {
+                    financeSection.style.display = 'none'; // Pas d'accès aux finances
+                    salesSection.style.display = 'block';
+                    clientsListSection.style.display = 'block';
+                } else if (role === 'technique') {
+                    financeSection.style.display = 'none'; // Pas d'accès aux finances
+                    salesSection.style.display = 'block';
+                    clientsListSection.style.display = 'block';
+                } else if (role === 'finance') {
+                    salesSection.style.display = 'none'; // Pas d'accès aux ventes/enregistrement
+                    financeSection.style.display = 'block';
+                    clientsListSection.style.display = 'block';
+                }
+                updateUI();
+            }
+        }
+
+        // Vérification de la session au démarrage
+        document.addEventListener('DOMContentLoaded', showApp);
+
+        // Enregistrement client et sauvegarde
         document.getElementById('clientForm').addEventListener('submit', function(e) {
             e.preventDefault();
 
-            // Récupérer les valeurs du formulaire
             const client = {
                 name: document.getElementById('clientName').value,
                 contract: document.getElementById('contractNum').value,
@@ -256,30 +358,25 @@
                 plan: document.getElementById('paymentPlan').value
             };
 
-            // Récupérer la liste existante depuis le localStorage
             let clients = JSON.parse(localStorage.getItem('savane_clients')) || [];
             clients.push(client);
 
-            // Sauvegarder dans le localStorage
             localStorage.setItem('savane_clients', JSON.stringify(clients));
 
-            alert('Client enregistré et sauvegardé avec succès pour Savane Énergie !');
+            alert('Client enregistré avec succès !');
             this.reset();
             updateUI();
         });
 
         function updateUI() {
             let clients = JSON.parse(localStorage.getItem('savane_clients')) || [];
-            
-            // Mettre à jour le compteur
             document.getElementById('clientCount').innerText = clients.length;
 
-            // Mettre à jour le tableau
             const tableBody = document.getElementById('clientTableBody');
             tableBody.innerHTML = '';
 
             if (clients.length === 0) {
-                tableBody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: #776;">Aucun client enregistré pour le moment.</td></tr>`;
+                tableBody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: #776;">Aucun client pour le moment.</td></tr>`;
                 return;
             }
 
