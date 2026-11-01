@@ -303,6 +303,20 @@
     </div>
 
     <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            try {
+                const savedSession = localStorage.getItem('savane_session');
+                if (savedSession) {
+                    const sess = JSON.parse(savedSession);
+                    if (sess && sess.name && sess.role) {
+                        initAppSession(sess);
+                    }
+                }
+            } catch (e) {
+                localStorage.removeItem('savane_session');
+            }
+        });
+
         document.getElementById('loginForm').addEventListener('submit', function(e) {
             e.preventDefault();
             const user = {
@@ -310,7 +324,7 @@
                 role: document.getElementById('loginRole').value
             };
             localStorage.setItem('savane_session', JSON.stringify(user));
-            initApp();
+            initAppSession(user);
         });
 
         function logout() {
@@ -318,10 +332,7 @@
             location.reload();
         }
 
-        function initApp() {
-            const sess = JSON.parse(localStorage.getItem('savane_session'));
-            if (!sess) return;
-
+        function initAppSession(sess) {
             document.getElementById('loginScreen').classList.add('hidden');
             document.getElementById('appScreen').classList.remove('hidden');
 
@@ -342,7 +353,8 @@
 
             const today = new Date().toISOString().split('T')[0];
             ['pDate', 'cDate', 'tDate', 'savDate', 'payDate', 'expDate'].forEach(id => {
-                if(document.getElementById(id)) document.getElementById(id).value = today;
+                const el = document.getElementById(id);
+                if(el) el.value = today;
             });
 
             updateAllData();
@@ -536,12 +548,6 @@
             if(document.getElementById('dgRev')) document.getElementById('dgRev').innerText = totalRev.toLocaleString() + ' FCFA';
             if(document.getElementById('dgNet')) document.getElementById('dgNet').innerText = net.toLocaleString() + ' FCFA';
         }
-
-        document.addEventListener('DOMContentLoaded', () => {
-            if(localStorage.getItem('savane_session')) {
-                initApp();
-            }
-        });
     </script>
 </body>
 </html>
