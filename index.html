@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Savane Énergie</title>
+    <title>Savane Énergie - ERP</title>
     <style>
         body { font-family: Arial, sans-serif; background: #f4f6f8; margin: 0; padding: 15px; }
         .card { background: white; padding: 15px; border-radius: 8px; max-width: 900px; margin: 10px auto; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
@@ -14,6 +14,7 @@
         input, select { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-size: 13px; }
         button { background-color: #1b5e20; color: white; border: none; padding: 10px; width: 100%; font-weight: bold; border-radius: 4px; cursor: pointer; font-size: 14px; }
         button:hover { background-color: #2e7d32; }
+        .btn-small { padding: 5px 8px; font-size: 11px; width: auto; background: #fbc02d; color: #333; }
         .hidden { display: none !important; }
         header { background: #1b5e20; color: white; padding: 12px; text-align: center; border-radius: 4px; margin-bottom: 15px; }
         .nav { display: flex; gap: 4px; flex-wrap: wrap; margin-bottom: 15px; }
@@ -24,6 +25,8 @@
         th, td { padding: 6px; text-align: left; }
         th { background: #f1f8e9; color: #1b5e20; }
         .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; }
+        .kpi { background: #f1f8e9; padding: 10px; border-radius: 6px; text-align: center; border-left: 4px solid #1b5e20; }
+        .kpi strong { display: block; font-size: 18px; color: #1b5e20; margin-top: 4px; }
     </style>
 </head>
 <body>
@@ -95,12 +98,10 @@
                 <button type="submit">Enregistrer la Vente</button>
             </form>
 
-            <h3 style="margin-top:15px; color:#1b5e20; font-size:14px;">Liste des Clients Enregistrés</h3>
+            <h3 style="margin-top:15px; color:#1b5e20; font-size:14px;">Liste des Clients</h3>
             <div style="overflow-x:auto;">
                 <table>
-                    <thead>
-                        <tr><th>Contrat</th><th>Client</th><th>Kit</th><th>Acompte</th><th>Reste</th></tr>
-                    </thead>
+                    <thead><tr><th>Contrat</th><th>Client</th><th>Kit</th><th>Payé</th><th>Reste</th><th>Statut Tech</th></tr></thead>
                     <tbody id="clientListTbody"></tbody>
                 </table>
             </div>
@@ -108,26 +109,63 @@
 
         <!-- Espace Technique -->
         <div id="contentTechnique" class="card hidden">
-            <h2>Espace Technique & SAV</h2>
-            <p>Suivi des installations solaires et des interventions.</p>
+            <h2>Installations & Interventions SAV</h2>
+            <p style="font-size:12px; color:#555;">Validez les installations terminées ou notez une intervention technique.</p>
+            <div style="overflow-x:auto;">
+                <table>
+                    <thead><tr><th>Contrat</th><th>Client</th><th>Kit</th><th>État</th><th>Action</th></tr></thead>
+                    <tbody id="techListTbody"></tbody>
+                </table>
+            </div>
         </div>
 
         <!-- Espace Stock -->
         <div id="contentStock" class="card hidden">
             <h2>Gestion des Stocks</h2>
-            <p>Entrées et sorties des équipements.</p>
+            <form onsubmit="updateStock(event)" class="grid" style="align-items:end;">
+                <div class="form-group">
+                    <label>Modèle de Kit</label>
+                    <select id="sKit" required>
+                        <option value="Kit 350">Kit 350</option>
+                        <option value="Kit 450">Kit 450</option>
+                        <option value="Kit 710">Kit 710</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Mouvement</label>
+                    <select id="sType">
+                        <option value="in">Entrée (+)</option>
+                        <option value="out">Sortie (-)</option>
+                    </select>
+                </div>
+                <div class="form-group"><label>Quantité</label><input type="number" id="sQty" required min="1" placeholder="Ex: 10"></div>
+                <div class="form-group"><button type="submit">Valider</button></div>
+            </form>
+            <table>
+                <thead><tr><th>Équipement</th><th>Quantité Disponible</th></tr></thead>
+                <tbody id="stockTbody"></tbody>
+            </table>
         </div>
 
         <!-- Espace Finance -->
         <div id="contentFinance" class="card hidden">
-            <h2>Espace Finance & Impayés</h2>
-            <p>Suivi des règlements et des impayés.</p>
+            <h2>Suivi des Encaissements & Soldes</h2>
+            <div style="overflow-x:auto;">
+                <table>
+                    <thead><tr><th>Contrat</th><th>Client</th><th>Reste à payer</th><th>Mensualité</th><th>Encaisser</th></tr></thead>
+                    <tbody id="financeTbody"></tbody>
+                </table>
+            </div>
         </div>
 
         <!-- Espace DG -->
         <div id="contentDG" class="card hidden">
             <h2>Supervision Direction Générale (DG)</h2>
-            <p>Tableau de bord global.</p>
+            <div class="grid">
+                <div class="kpi">Clients Actifs <strong id="kpiClients">0</strong></div>
+                <div class="kpi">Total Encaissé <strong id="kpiPaid">0 FCFA</strong></div>
+                <div class="kpi">Reste à Recouvrer <strong id="kpiRest">0 FCFA</strong></div>
+            </div>
         </div>
     </div>
 
@@ -154,11 +192,10 @@
 
             if (role === 'commercial') switchTab('commercial');
             else if (role === 'technique') switchTab('technique');
-            else if (role === 'stock') switchTab('stock');
             else if (role === 'finance') switchTab('finance');
             else switchTab('dg');
 
-            updateClientsTable();
+            refreshAll();
         }
 
         function switchTab(tab) {
@@ -170,6 +207,7 @@
             });
             document.getElementById('content' + tab.charAt(0).toUpperCase() + tab.slice(1)).classList.remove('hidden');
             document.getElementById('tabBtn' + tab.charAt(0).toUpperCase() + tab.slice(1)).classList.add('active');
+            refreshAll();
         }
 
         function calcFinancials() {
@@ -187,36 +225,98 @@
             const select = document.getElementById('cKit');
             const price = parseFloat(select.options[select.selectedIndex].getAttribute('data-price')) || 0;
             const deposit = parseFloat(document.getElementById('cDeposit').value) || 0;
+            const rest = Math.max(0, price - deposit);
 
             let clients = JSON.parse(localStorage.getItem('savane_clients')) || [];
             clients.push({
+                id: Date.now(),
                 name: document.getElementById('cName').value,
                 contract: document.getElementById('cContract').value,
+                phone: document.getElementById('cPhone').value,
                 kit: select.value,
-                deposit: deposit,
-                remaining: price - deposit
+                total: price,
+                paid: deposit,
+                remaining: rest,
+                monthly: Math.round(rest / 12),
+                status: 'À installer'
             });
             localStorage.setItem('savane_clients', JSON.stringify(clients));
-            alert('Client enregistré avec succès !');
+            alert('Vente enregistrée avec succès !');
             document.getElementById('clientForm').reset();
             calcFinancials();
-            updateClientsTable();
+            refreshAll();
         }
 
-        function updateClientsTable() {
+        function toggleInstall(id) {
             let clients = JSON.parse(localStorage.getItem('savane_clients')) || [];
-            const tbody = document.getElementById('clientListTbody');
-            if(tbody) {
-                tbody.innerHTML = clients.map(c => `
-                    <tr>
-                        <td><strong>${c.contract}</strong></td>
-                        <td>${c.name}</td>
-                        <td>${c.kit}</td>
-                        <td>${c.deposit.toLocaleString()} FCFA</td>
-                        <td><strong style="color:#c62828;">${c.remaining.toLocaleString()} FCFA</strong></td>
-                    </tr>
-                `).join('');
-            }
+            clients = clients.map(c => c.id === id ? {...c, status: c.status === 'Installé' ? 'SAV en cours' : 'Installé'} : c);
+            localStorage.setItem('savane_clients', JSON.stringify(clients));
+            refreshAll();
+        }
+
+        function recordPayment(id) {
+            const amount = parseFloat(prompt('Montant encaissé (FCFA) :'));
+            if (!amount || amount <= 0) return;
+            let clients = JSON.parse(localStorage.getItem('savane_clients')) || [];
+            clients = clients.map(c => {
+                if (c.id === id) {
+                    const newPaid = c.paid + amount;
+                    const newRest = Math.max(0, c.total - newPaid);
+                    return {...c, paid: newPaid, remaining: newRest};
+                }
+                return c;
+            });
+            localStorage.setItem('savane_clients', JSON.stringify(clients));
+            refreshAll();
+        }
+
+        function updateStock(e) {
+            e.preventDefault();
+            const kit = document.getElementById('sKit').value;
+            const type = document.getElementById('sType').value;
+            const qty = parseInt(document.getElementById('sQty').value);
+            let stock = JSON.parse(localStorage.getItem('savane_stock')) || {'Kit 350': 0, 'Kit 450': 0, 'Kit 710': 0};
+            stock[kit] = type === 'in' ? (stock[kit] || 0) + qty : Math.max(0, (stock[kit] || 0) - qty);
+            localStorage.setItem('savane_stock', JSON.stringify(stock));
+            document.getElementById('sQty').value = '';
+            refreshAll();
+        }
+
+        function refreshAll() {
+            let clients = JSON.parse(localStorage.getItem('savane_clients')) || [];
+            let stock = JSON.parse(localStorage.getItem('savane_stock')) || {'Kit 350': 0, 'Kit 450': 0, 'Kit 710': 0};
+
+            // Commercial Table
+            document.getElementById('clientListTbody').innerHTML = clients.map(c => `
+                <tr>
+                    <td><strong>${c.contract}</strong></td><td>${c.name}</td><td>${c.kit}</td>
+                    <td>${c.paid.toLocaleString()}</td><td><strong style="color:#c62828;">${c.remaining.toLocaleString()}</strong></td>
+                    <td>${c.status}</td>
+                </tr>`).join('');
+
+            // Tech Table
+            document.getElementById('techListTbody').innerHTML = clients.map(c => `
+                <tr>
+                    <td>${c.contract}</td><td>${c.name}</td><td>${c.kit}</td><td><strong>${c.status}</strong></td>
+                    <td><button class="btn-small" onclick="toggleInstall(${c.id})">Changer état</button></td>
+                </tr>`).join('');
+
+            // Stock Table
+            document.getElementById('stockTbody').innerHTML = Object.keys(stock).map(k => `
+                <tr><td><strong>${k}</strong></td><td>${stock[k]} unités</td></tr>`).join('');
+
+            // Finance Table
+            document.getElementById('financeTbody').innerHTML = clients.map(c => `
+                <tr>
+                    <td>${c.contract}</td><td>${c.name}</td><td><strong>${c.remaining.toLocaleString()} FCFA</strong></td>
+                    <td>${c.monthly.toLocaleString()} FCFA</td>
+                    <td><button class="btn-small" onclick="recordPayment(${c.id})">+ Paiement</button></td>
+                </tr>`).join('');
+
+            // DG KPIs
+            document.getElementById('kpiClients').innerText = clients.length;
+            document.getElementById('kpiPaid').innerText = clients.reduce((acc, c) => acc + c.paid, 0).toLocaleString() + ' FCFA';
+            document.getElementById('kpiRest').innerText = clients.reduce((acc, c) => acc + c.remaining, 0).toLocaleString() + ' FCFA';
         }
 
         function logout() {
@@ -227,9 +327,7 @@
         window.onload = function() {
             const savedName = localStorage.getItem('user_name');
             const savedRole = localStorage.getItem('user_role');
-            if (savedName && savedRole) {
-                loadApp(savedName, savedRole);
-            }
+            if (savedName && savedRole) loadApp(savedName, savedRole);
         }
     </script>
 </body>
