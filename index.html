@@ -193,7 +193,8 @@
             if (role === 'commercial') switchTab('commercial');
             else if (role === 'technique') switchTab('technique');
             else if (role === 'finance') switchTab('finance');
-            else switchTab('dg');
+            else if (role === 'dg') switchTab('dg');
+            else switchTab('commercial');
 
             refreshAll();
         }
@@ -205,8 +206,10 @@
                 const btn = document.getElementById('tabBtn' + t.charAt(0).toUpperCase() + t.slice(1));
                 if(btn) btn.classList.remove('active');
             });
-            document.getElementById('content' + tab.charAt(0).toUpperCase() + tab.slice(1)).classList.remove('hidden');
-            document.getElementById('tabBtn' + tab.charAt(0).toUpperCase() + tab.slice(1)).classList.add('active');
+            const targetEl = document.getElementById('content' + tab.charAt(0).toUpperCase() + tab.slice(1));
+            const targetBtn = document.getElementById('tabBtn' + tab.charAt(0).toUpperCase() + tab.slice(1));
+            if(targetEl) targetEl.classList.remove('hidden');
+            if(targetBtn) targetBtn.classList.add('active');
             refreshAll();
         }
 
@@ -241,7 +244,7 @@
                 status: 'À installer'
             });
             localStorage.setItem('savane_clients', JSON.stringify(clients));
-            alert('Vente enregistrée avec succès !');
+            alert('Client enregistré avec succès !');
             document.getElementById('clientForm').reset();
             calcFinancials();
             refreshAll();
@@ -287,36 +290,51 @@
             let stock = JSON.parse(localStorage.getItem('savane_stock')) || {'Kit 350': 0, 'Kit 450': 0, 'Kit 710': 0};
 
             // Commercial Table
-            document.getElementById('clientListTbody').innerHTML = clients.map(c => `
-                <tr>
-                    <td><strong>${c.contract}</strong></td><td>${c.name}</td><td>${c.kit}</td>
-                    <td>${c.paid.toLocaleString()}</td><td><strong style="color:#c62828;">${c.remaining.toLocaleString()}</strong></td>
-                    <td>${c.status}</td>
-                </tr>`).join('');
+            const cTbody = document.getElementById('clientListTbody');
+            if(cTbody) {
+                cTbody.innerHTML = clients.map(c => `
+                    <tr>
+                        <td><strong>${c.contract}</strong></td><td>${c.name}</td><td>${c.kit}</td>
+                        <td>${c.paid.toLocaleString()}</td><td><strong style="color:#c62828;">${c.remaining.toLocaleString()}</strong></td>
+                        <td>${c.status}</td>
+                    </tr>`).join('');
+            }
 
             // Tech Table
-            document.getElementById('techListTbody').innerHTML = clients.map(c => `
-                <tr>
-                    <td>${c.contract}</td><td>${c.name}</td><td>${c.kit}</td><td><strong>${c.status}</strong></td>
-                    <td><button class="btn-small" onclick="toggleInstall(${c.id})">Changer état</button></td>
-                </tr>`).join('');
+            const tTbody = document.getElementById('techListTbody');
+            if(tTbody) {
+                tTbody.innerHTML = clients.map(c => `
+                    <tr>
+                        <td>${c.contract}</td><td>${c.name}</td><td>${c.kit}</td><td><strong>${c.status}</strong></td>
+                        <td><button class="btn-small" onclick="toggleInstall(${c.id})">Changer état</button></td>
+                    </tr>`).join('');
+            }
 
             // Stock Table
-            document.getElementById('stockTbody').innerHTML = Object.keys(stock).map(k => `
-                <tr><td><strong>${k}</strong></td><td>${stock[k]} unités</td></tr>`).join('');
+            const sTbody = document.getElementById('stockTbody');
+            if(sTbody) {
+                sTbody.innerHTML = Object.keys(stock).map(k => `
+                    <tr><td><strong>${k}</strong></td><td>${stock[k]} unités</td></tr>`).join('');
+            }
 
             // Finance Table
-            document.getElementById('financeTbody').innerHTML = clients.map(c => `
-                <tr>
-                    <td>${c.contract}</td><td>${c.name}</td><td><strong>${c.remaining.toLocaleString()} FCFA</strong></td>
-                    <td>${c.monthly.toLocaleString()} FCFA</td>
-                    <td><button class="btn-small" onclick="recordPayment(${c.id})">+ Paiement</button></td>
-                </tr>`).join('');
+            const fTbody = document.getElementById('financeTbody');
+            if(fTbody) {
+                fTbody.innerHTML = clients.map(c => `
+                    <tr>
+                        <td>${c.contract}</td><td>${c.name}</td><td><strong>${c.remaining.toLocaleString()} FCFA</strong></td>
+                        <td>${c.monthly.toLocaleString()} FCFA</td>
+                        <td><button class="btn-small" onclick="recordPayment(${c.id})">+ Paiement</button></td>
+                    </tr>`).join('');
+            }
 
             // DG KPIs
-            document.getElementById('kpiClients').innerText = clients.length;
-            document.getElementById('kpiPaid').innerText = clients.reduce((acc, c) => acc + c.paid, 0).toLocaleString() + ' FCFA';
-            document.getElementById('kpiRest').innerText = clients.reduce((acc, c) => acc + c.remaining, 0).toLocaleString() + ' FCFA';
+            const kClients = document.getElementById('kpiClients');
+            const kPaid = document.getElementById('kpiPaid');
+            const kRest = document.getElementById('kpiRest');
+            if(kClients) kClients.innerText = clients.length;
+            if(kPaid) kPaid.innerText = clients.reduce((acc, c) => acc + c.paid, 0).toLocaleString() + ' FCFA';
+            if(kRest) kRest.innerText = clients.reduce((acc, c) => acc + c.remaining, 0).toLocaleString() + ' FCFA';
         }
 
         function logout() {
